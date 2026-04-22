@@ -1,10 +1,11 @@
 {
-  "name": "clase-6",
+  "name": "voxline",
   "version": "1.0.0",
-  "description": "",
+  "description": "Chat en tiempo real con autenticación JWT",
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node src/server.js",
     "dev": "node --watch ./server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

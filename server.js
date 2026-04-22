@@ -1,17 +1,15 @@
+import './config/env.js'
+
 import express from 'express'
 import logger from 'morgan'
-import dotenv from 'dotenv'
 import { Server } from 'socket.io'
 import { createServer } from 'node:http'
-import './config/env.js'
 
 import { initDB } from './config/db.js'
 import { applySocketAuth, registerSocketHandlers } from './socket/handlers.js'
 import authRouter from './routes/auth.js'
 
-dotenv.config()
-
-const PORT = process.env.PORT ?? 3000
+const PORT = process.env.PORT ?? 3000  // Railway inyecta PORT automáticamente
 
 async function main() {
   await initDB()
@@ -22,12 +20,15 @@ async function main() {
     connectionStateRecovery: { maxAttempts: 10, timeout: 1000 }
   })
 
-  /* ── Express middleware ──────────────────────────────────── */
+  /* ── Middleware ──────────────────────────────────────────── */
   app.use(logger('dev'))
   app.use(express.json())
 
-  /* ── Routes ──────────────────────────────────────────────── */
+  /* ── Rutas ───────────────────────────────────────────────── */
   app.use('/auth', authRouter)
+
+  // Health check para Railway
+  app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 
   app.get('/', (_req, res) => {
     res.sendFile(process.cwd() + '/client/index.html')
@@ -37,13 +38,13 @@ async function main() {
   applySocketAuth(io)
   registerSocketHandlers(io)
 
-  /* ── Start ───────────────────────────────────────────────── */
+  /* ── Arranque ────────────────────────────────────────────── */
   server.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
+    console.log(`Servidor corriendo en http://localhost:${PORT}`)
   })
 }
 
 main().catch((err) => {
-  console.error('Failed to start server:', err)
+  console.error('Error al iniciar el servidor:', err)
   process.exit(1)
 })
